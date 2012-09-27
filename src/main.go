@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net/http"
 )
@@ -28,30 +29,29 @@ func (p *Proxy) ServeHTTP(wr http.ResponseWriter, r *http.Request) {
 		}
 	case "POST":
 		{
-			resp, err = http.Post(r.URL.String(), r.Header["Content-Type"], r.Body)
+			resp, err = http.Post(r.URL.String(), r.Header["Content-Type"][0], r.Body)
 			r.Body.Close()
 		}
 	}
 
 	// combined for GET/POST
 	if err != nil {
-		http.Error(wr, err.String(), http.StatusInternalServerError)
-		loghit(r, http.StatusInternalServerError, false)
+		http.Error(wr, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	wr.SetHeader("Content-Type", resp.Header["Content-Type"])
+
+	wr.Header().Set("Content-Type", resp.Header["Content-Type"][0])
 	wr.WriteHeader(resp.StatusCode)
 
 	io.Copy(wr, resp.Body)
 
 	resp.Body.Close()
-	loghit(r, resp.StatusCode, false)
 }
 
 func main() {
 	proxy := NewProxy()
 	err := http.ListenAndServe(":12345", proxy)
 	if err != nil {
-		log.Exit("ListenAndServe: ", err.String())
+		log.Fatal("ListenAndServe: ", err)
 	}
 }
