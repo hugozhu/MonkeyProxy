@@ -5,7 +5,7 @@ A proxy simulates all kinds of network issues during load testing
 
 ##Installation
 * download go installer from: http://code.google.com/p/go/downloads/list
-* compile: cd MonkeyProxy; export GO_PATH=`pwd`; go build src/monkey_proxy
+* compile: cd MonkeyProxy; export GO_PATH=``pwd``; go build src/monkey_proxy
 
 ##Prerequisite
 on test application server, update /etc/hosts to point backend servers to monkey proxy server
@@ -15,6 +15,6 @@ launch monkey_proxy with following command:
 `monkey_proxy -target www.google.com:80 -bad_rate 10 -timeout_rate 10 -dead_rate 1 --port 12345`
 - -bad_rate: percentage of requests will return partial response
 - -timeout_rate: percentage of requests will be timed out
-- -timeout: the timed out requests will wait *timeout* milliseonds before response
+- -timeout: the timed out requests will wait exact *timeout* milliseonds before response
 - -target: the target server hostname and port *required*
 - -port: local port, typically it should be same as target server port
