@@ -3,14 +3,14 @@ MonkeyProxy
 
 A proxy simulates all kinds of network issues during load testing
 
-#Installation
+=Installation
 * download go installer from: http://code.google.com/p/go/downloads/list
 * compile: cd MonkeyProxy; export GO_PATH=`pwd`; go build src/monkey_proxy
 
-#Prerequisite
+=Prerequisite
 on test application server, update /etc/hosts to point backend servers to monkey proxy server
 
-#Usage
+=Usage
 launch monkey_proxy with following command:
 ` -monkey_proxy -target www.google.com:80 -bad_rate 10 -timeout_rate 10 -dead_rate 1 --port 12345 `
 - -bad_rate: percentage of requests will return partial response
