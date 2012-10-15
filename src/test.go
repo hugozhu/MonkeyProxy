@@ -3,9 +3,16 @@ package main
 import (
 	"fmt"
 	"io"
+	"linkio"
 	"net"
 	"os"
 )
+
+var gLink *linkio.Link
+
+func init() {
+	gLink = linkio.NewLink(1000 /* kbps */)
+}
 
 func main() {
 	if len(os.Args) != 3 {
@@ -33,7 +40,7 @@ func forward(local net.Conn, remoteAddr string) {
 		return
 	}
 	go io.Copy(local, remote)
-	go io.Copy(remote, local)
+	go io.Copy(remote, gLink.NewLinkReader(local))
 }
 
 func fatal(s string, a ...interface{}) {
