@@ -12,9 +12,10 @@ on test application server, update /etc/hosts to point backend servers to monkey
 
 ##Usage
 launch monkey_proxy with the following command:
-`monkey_proxy -target www.google.com:80  -port 12345 -bad_rate 10 -timeout_rate 10 -dead_rate 1`
+`monkey_proxy -target www.google.com:80  -port 12345 -bad_rate 10 -timeout_rate 10 -dead_rate 1 -duration 10`
 - -target: the target server hostname and port *required*
 - -port: local port, typically it should be same as target server port
 - -bad_rate: percentage of requests will return partial response
 - -timeout_rate: percentage of requests will be timed out
 - -timeout: the timed out requests will wait exact *timeout* milliseonds before response
+- -duration: how long (in minutes) the monkey behavior will last

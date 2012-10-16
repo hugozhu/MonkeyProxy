@@ -20,42 +20,63 @@ var timeout = flag.Int("timeout", 1000, "超时设置")
 var bad_rate = flag.Int("bad_rate", 0, "坏请求百分比")
 var target = flag.String("target", "", "目标服务地址 ＊必填＊")
 var port = flag.Int("port", 80, "本地端口")
+var delay = flag.Int("delay", 0, "how soon (in minutes) the monkey behavior start")
+var duration = flag.Int("duration", 0, "how long (in minutes) the monkey behavior will last")
+
+var start int64
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	var resp *http.Response
 	var err error
 	url := "http://" + *target + r.URL.String()
-	randInt := random.Intn(100)
 
-	block := false
+	enable := true
 	bad := false
 
-	if *dead_rate > 0 {
-		if randInt <= *dead_rate {
-			log.Printf("%s dead response", url)
-			time.Sleep(24 * time.Hour)
-			block = true
-			return
+	if start == 0 {
+		start = time.Now().Unix()
+	}
+
+	if *delay > 0 {
+		if time.Now().Unix()-start < int64(60**delay) {
+			enable = false
 		}
 	}
 
-	if !block && *timeout_rate > 0 {
-		if randInt > *dead_rate && randInt <= *dead_rate+*timeout_rate {
-			log.Printf("%s [timeout]", url)
-			time.Sleep(time.Duration(*timeout) * time.Millisecond)
-			block = true
-			return
+	if *duration > 0 {
+		if time.Now().Unix()-start > int64(60*(*duration+*delay)) {
+			enable = false
 		}
 	}
 
-	if !block && *bad_rate > 0 {
-		if randInt > *dead_rate+*timeout_rate && randInt <= *dead_rate+*timeout_rate+*bad_rate {
-			log.Printf("%s [bad]", url)
-			bad = true
+	if enable {
+		randInt := random.Intn(100)
+
+		if *dead_rate > 0 {
+			if randInt <= *dead_rate {
+				log.Printf("%s [dead]", url)
+				time.Sleep(24 * time.Hour)
+				return
+			}
+		}
+
+		if *timeout_rate > 0 {
+			if randInt > *dead_rate && randInt <= *dead_rate+*timeout_rate {
+				log.Printf("%s [timeout]", url)
+				time.Sleep(time.Duration(*timeout) * time.Millisecond)
+				return
+			}
+		}
+
+		if *bad_rate > 0 {
+			if randInt > *dead_rate+*timeout_rate && randInt <= *dead_rate+*timeout_rate+*bad_rate {
+				log.Printf("%s [bad]", url)
+				bad = true
+			}
 		}
 	}
 
-	if !block && !bad {
+	if !bad {
 		log.Printf("%s [normal]", url)
 	}
 
